@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
 # import the necessary Python module for db
@@ -24,6 +24,36 @@ def index():
 
 
 @app.route("/drinks")
-def get_index():
+def get_drinks():
+    drinks = Drink.query.all()
 
-    return {"drinks": ["water", "soda", "juice"]}
+    output = []
+    for drink in drinks:
+        drink_data = {"name": drink.name, "description": drink.description}
+        output.append(drink_data)
+    return {"drinks": output}
+
+
+@app.route("/drinks/<id>")
+def get_single_drink(id):
+    drink = Drink.query.get_or_404(id)  # get_or_404 returns 404 if not found()
+
+    return jsonify({"name": drink.name, "description": drink.description})
+
+
+@app.route("/drinks", methods=["POST"])
+def add_drink():
+    drink = Drink(name=request.json["name"], description=request.json["description"])
+    db.session.add(drink)
+    db.session.commit()
+    return {"Successfully Added! New Drink ID": drink.id}
+
+
+@app.route("/drinks/<id>", methods=["DELETE"])
+def delete_drink(id):
+    drink = Drink.query.get(id)
+    if drink is None:
+        return {"error": f"The Drink with ID {id} was not found"}
+    db.session.delete(drink)
+    db.session.commit()
+    return {"Successfully Totally Yeeted Drink ID": drink.id}
