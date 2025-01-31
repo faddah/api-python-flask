@@ -1,6 +1,13 @@
+import sqlite3
 from flask import Flask
+# import the necessary Python module for db
 
 app = Flask(__name__)
+
+class Drink:
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
 
 
 @app.route("/")
